@@ -1,0 +1,125 @@
+---
+title: "432_final_project"
+author: "Jiyang Xu"
+date: "2023-11-26"
+output: html_document
+---
+
+```{r}
+library(readxl)
+
+TOX = read_excel("data.xlsx")
+TOX = TOX[,-16]
+head(TOX)
+```
+
+```{r}
+full_mod <- lm(`mouse intraperitoneal LD50`~Halogens+P+Aliphatic
+               +S*`Hydroxyl or Ether`
+               +S*`Ketones, aldehydes, carboxylic acids, or esters`
+               +`Primary Amine or Ammonium Ion`*`Ketones, aldehydes, carboxylic acids, or esters`
+               +`Secondary Amine or Aromatic Nitrogen`*`Ketones, aldehydes, carboxylic acids, or esters`
+               +`Tertiary Amine or Amide Nitrogen`*`Ketones, aldehydes, carboxylic acids, or esters`
+               +`Primary Amine or Ammonium Ion`*`Hydroxyl or Ether`
+               +`Secondary Amine or Aromatic Nitrogen`*`Hydroxyl or Ether`
+               +`Tertiary Amine or Amide Nitrogen`*`Hydroxyl or Ether`
+               +`Partially Aromatic`*`Hydroxyl or Ether`
+               +`Aromatic`*`Hydroxyl or Ether`
+               +`Partially Aromatic`*`Other Metal`
+               +`Aromatic`*`Other Metal`
+               +`Hydroxyl or Ether`*`Ketones, aldehydes, carboxylic acids, or esters`, 
+               data=TOX)
+
+
+step_bic <- step(full_mod, direction="both", k=log(2))
+```
+
+```{r}
+summary(step_bic)
+```
+
+```{r}
+print(names(TOX))
+```
+
+
+```{r}
+library(randomForest)
+
+fit <- randomForest(TOX$`mouse intraperitoneal LD50`~
+                      TOX$Halogens+TOX$P+TOX$Aliphatic
+                    +TOX$S*TOX$`Hydroxyl or Ether`
+                    +TOX$S*TOX$`Ketones, aldehydes, carboxylic acids, or esters`
+                    +TOX$`Primary Amine or Ammonium Ion`*TOX$`Ketones, aldehydes, carboxylic acids, or esters`
+                    +TOX$`Secondary Amine or Aromatic Nitrogen`*
+                      TOX$`Ketones, aldehydes, carboxylic acids, or esters`
+                    +TOX$`Tertiary Amine or Amide Nitrogen`*
+                      TOX$`Ketones, aldehydes, carboxylic acids, or esters`
+                    +TOX$`Primary Amine or Ammonium Ion`*
+                      TOX$`Hydroxyl or Ether`
+                    +TOX$`Secondary Amine or Aromatic Nitrogen`*
+                      TOX$`Hydroxyl or Ether`
+                    +TOX$`Tertiary Amine or Amide Nitrogen`*
+                      TOX$`Hydroxyl or Ether`
+                    +TOX$`Partially Aromatic`*TOX$`Hydroxyl or Ether`
+                    +TOX$`Aromatic`*TOX$`Hydroxyl or Ether`
+                    +TOX$`Partially Aromatic`*TOX$`Other Metal`
+                    +TOX$`Aromatic`*TOX$`Other Metal`
+                    +TOX$`Hydroxyl or Ether`*TOX$`Ketones, aldehydes, carboxylic acids, or esters`,
+                    data=TOX, importance=T)
+```
+
+
+
+```{r}
+temp_df <- TOX[,-c(1,2)]
+
+temp_df$S_Hydroxyl_or_Ether <- TOX$S * TOX$`Hydroxyl or Ether`
+temp_df$S_Ketones_aldehydes_acids_esters <- TOX$S * TOX$`Ketones, aldehydes, carboxylic acids, or esters`
+temp_df$Primary_Amine_Ketones_aldehydes_acids_esters <- TOX$`Primary Amine or Ammonium Ion` * TOX$`Ketones, aldehydes, carboxylic acids, or esters`
+temp_df$Secondary_Amine_Ketones_aldehydes_acids_esters <- TOX$`Secondary Amine or Aromatic Nitrogen` * TOX$`Ketones, aldehydes, carboxylic acids, or esters`
+temp_df$Tertiary_Amine_Ketones_aldehydes_acids_esters <- TOX$`Tertiary Amine or Amide Nitrogen` * TOX$`Ketones, aldehydes, carboxylic acids, or esters`
+temp_df$Primary_Amine_Hydroxyl_or_Ether <- TOX$`Primary Amine or Ammonium Ion` * TOX$`Hydroxyl or Ether`
+temp_df$Secondary_Amine_Hydroxyl_or_Ether <- TOX$`Secondary Amine or Aromatic Nitrogen` * TOX$`Hydroxyl or Ether`
+temp_df$Tertiary_Amine_Hydroxyl_or_Ether <- TOX$`Tertiary Amine or Amide Nitrogen` * TOX$`Hydroxyl or Ether`
+temp_df$Partially_Aromatic_Hydroxyl_or_Ether <- TOX$`Partially Aromatic` * TOX$`Hydroxyl or Ether`
+temp_df$Aromatic_Hydroxyl_or_Ether <- TOX$Aromatic * TOX$`Hydroxyl or Ether`
+temp_df$Partially_Aromatic_Other_Metal <- TOX$`Partially Aromatic` * TOX$`Other Metal`
+temp_df$Aromatic_Other_Metal <- TOX$Aromatic * TOX$`Other Metal`
+temp_df$Hydroxyl_or_Ether_Ketones_aldehydes_acids_esters <- TOX$`Hydroxyl or Ether` * TOX$`Ketones, aldehydes, carboxylic acids, or esters`
+
+```
+
+
+```{r}
+library(randomForest)
+
+fit <- randomForest(temp_df$`mouse intraperitoneal LD50`~
+                      temp_df$Halogens+temp_df$P+temp_df$Aliphatic
+                    +temp_df$S_Hydroxyl_or_Ether
+                    +temp_df$S_Ketones_aldehydes_acids_esters
+                    +temp_df$Primary_Amine_Ketones_aldehydes_acids_esters
+                    +temp_df$Secondary_Amine_Ketones_aldehydes_acids_esters
+                    +temp_df$Tertiary_Amine_Ketones_aldehydes_acids_esters
+                    +temp_df$Primary_Amine_Hydroxyl_or_Ether
+                    +temp_df$Secondary_Amine_Hydroxyl_or_Ether
+                    +temp_df$Tertiary_Amine_Hydroxyl_or_Ether
+                    +temp_df$Partially_Aromatic_Hydroxyl_or_Ether
+                    +temp_df$Aromatic_Hydroxyl_or_Ether
+                    +temp_df$Partially_Aromatic_Other_Metal
+                    +temp_df$Aromatic_Other_Metal
+                    +temp_df$Hydroxyl_or_Ether_Ketones_aldehydes_acids_esters
+                    ,data=temp_df, importance=T)
+```
+
+
+```{r}
+importance_matrix <- importance(fit)
+
+# Sort by %IncMSE in descending order
+sorted_importance <- importance_matrix[order(-importance_matrix[,'%IncMSE']),]
+
+# Print the sorted feature importance
+print(sorted_importance)
+```
+
