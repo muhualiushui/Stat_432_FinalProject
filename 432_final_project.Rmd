@@ -43,32 +43,6 @@ print(names(TOX))
 ```
 
 
-```{r}
-library(randomForest)
-
-fit <- randomForest(TOX$`mouse intraperitoneal LD50`~
-                      TOX$Halogens+TOX$P+TOX$Aliphatic
-                    +TOX$S*TOX$`Hydroxyl or Ether`
-                    +TOX$S*TOX$`Ketones, aldehydes, carboxylic acids, or esters`
-                    +TOX$`Primary Amine or Ammonium Ion`*TOX$`Ketones, aldehydes, carboxylic acids, or esters`
-                    +TOX$`Secondary Amine or Aromatic Nitrogen`*
-                      TOX$`Ketones, aldehydes, carboxylic acids, or esters`
-                    +TOX$`Tertiary Amine or Amide Nitrogen`*
-                      TOX$`Ketones, aldehydes, carboxylic acids, or esters`
-                    +TOX$`Primary Amine or Ammonium Ion`*
-                      TOX$`Hydroxyl or Ether`
-                    +TOX$`Secondary Amine or Aromatic Nitrogen`*
-                      TOX$`Hydroxyl or Ether`
-                    +TOX$`Tertiary Amine or Amide Nitrogen`*
-                      TOX$`Hydroxyl or Ether`
-                    +TOX$`Partially Aromatic`*TOX$`Hydroxyl or Ether`
-                    +TOX$`Aromatic`*TOX$`Hydroxyl or Ether`
-                    +TOX$`Partially Aromatic`*TOX$`Other Metal`
-                    +TOX$`Aromatic`*TOX$`Other Metal`
-                    +TOX$`Hydroxyl or Ether`*TOX$`Ketones, aldehydes, carboxylic acids, or esters`,
-                    data=TOX, importance=T)
-```
-
 
 
 ```{r}
@@ -95,7 +69,15 @@ temp_df$Hydroxyl_or_Ether_Ketones_aldehydes_acids_esters <- TOX$`Hydroxyl or Eth
 library(randomForest)
 
 fit <- randomForest(temp_df$`mouse intraperitoneal LD50`~
-                      temp_df$Halogens+temp_df$P+temp_df$Aliphatic
+                      temp_df$Halogens+temp_df$S+temp_df$P
+                    +temp_df$`Other Metal`+temp_df$`Hydroxyl or Ether`
+                    +temp_df$`Ketones, aldehydes, carboxylic acids, or esters`
+                    +temp_df$`Primary Amine or Ammonium Ion`
+                    +temp_df$`Secondary Amine or Aromatic Nitrogen`
+                    +temp_df$`Tertiary Amine or Amide Nitrogen`
+                    +temp_df$`Partially Aromatic`
+                    +temp_df$Aromatic
+                    +temp_df$Aliphatic
                     +temp_df$S_Hydroxyl_or_Ether
                     +temp_df$S_Ketones_aldehydes_acids_esters
                     +temp_df$Primary_Amine_Ketones_aldehydes_acids_esters
